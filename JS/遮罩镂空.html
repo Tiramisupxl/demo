@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{margin:0;padding:0;}
+        #h1{text-align: center;}
+        #img1{width:300px;height:200px;}
+        #img2{width:500px;height:300px;margin-left:50%;}
+        #div{width:300px;height:50px;margin:auto;background-color: yellow;font-size:28px;text-align: center;line-height: 50px;}
+        #cover{position:absolute;top:0;left:0;border-color: rgba(0,0,0,.5);border-style:solid;z-index:99;overflow:
+                hidden;transition:all .25s;box-shadow: 0 0 0 100px #000;display: none;}
+        /*更正：本来用了position为fixed；结果发现缩小浏览器有滚动条的时候，滚动滚动条会出现框框没对准，所以用absolute是对的*/
+        #cover::before{content: "";display: block;width:100%;height:100%;border-radius: 50%;border:400px solid
+        rgba(0,0,0,.7);box-shadow:inset 0 0 5px 2px rgba(0,0,0,.2);position: absolute;top:-400px;left:-400px;}
+        #close{position:fixed;top:20px;;right:2%;width:50px;height:50px;background-color: #fff;border:#000;cursor:
+                pointer;z-index:100;visibility: hidden;}
+        /*#radius{width:350px;height:100px;border:400px solid rgba(0,0,0,.2);position: relative;}*/
+        /*#radius:before{content:"";display:block;width:100%;height:100%;border-radius: 50%;border:400px solid*/
+        /*rgba(0,0,0,.2);position: absolute;top:-400px;left:-400px;}*/
+    </style>
+</head>
+<body>
+<h1 id="h1">遮罩镂空效果demo</h1>
+<img id="img1" src="images/p1.jpg">
+<img id="img2" src="images/p2.jpg">
+<div id="div">
+    <p>结束啦~~</p>
+</div>
+<div id="cover"></div>
+<button id="close">关闭</button>
+<div id="radius"></div>
+</body>
+<script>
+    var btnClose=document.getElementById("close");
+    var coverGuide=function(cover,target){
+       var body=document.body,doc=document.documentElement;
+
+//       target的宽高
+       var tWidth=target.clientWidth;
+       var tHeight=target.clientHeight;
+
+//       body的宽高
+       width=body.scrollWidth||doc.scrollWidth;
+       height=body.scrollHeight||doc.scrollHeight;
+
+//       用target的定位值来确定cover的border
+       var top=target.getBoundingClientRect().top+(body.scrollTop||doc.scrollTop);
+       var left=target.getBoundingClientRect().left+(body.scrollLeft||doc.scrollLeft);
+       var right=width-left-tWidth;
+       var bottom=height-top-tHeight;
+//       console.log(top,right,bottom,left);
+
+//       cover的宽高
+       cover.style.width=tWidth+"px";
+       cover.style.height=tHeight+"px";
+
+//       cover的border值
+       cover.style.borderWidth=top+"px "+
+                       right+"px "+
+                       bottom+"px "+
+                       left+"px ";
+
+        cover.style.display="block";
+
+        btnClose.style.visibility="visible";
+
+//       浏览器伸缩变化
+//        var isResize;
+        if(!cover.isResize){
+            if(window.addEventListener){
+                window.addEventListener("resize",function(){
+                    coverGuide(cover,target);
+                });
+                cover.isResize=true;
+            }else if(window.attachEvent){
+                window.attachEvent("onresize",function(){
+                    coverGuide(cover.target);
+                });
+                cover.isResize=true;
+            }
+        }
+   };
+    var cover=document.getElementById("cover");
+    var toggleId=[document.getElementById("h1"),
+                    document.getElementById("img1"),
+                    document.getElementById("img2"),
+                    document.getElementById("div")];
+    var num=0;
+    coverGuide(cover,toggleId[num]);
+    cover.onclick=function(){
+            num++;
+            if(!toggleId[num]){
+                num=0;
+            }
+        coverGuide(cover,toggleId[num]);
+    };
+    btnClose.onclick=function(){
+        this.style.display="none";
+        cover.style.display="none";
+    };
+
+//    test
+    console.log(document.body.scrollHeight);
+    console.log(document.documentElement.scrollHeight);
+</script>
+</html>
